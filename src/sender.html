@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'unsafe-inline'">
+<script type="importmap">{ "imports": { "three": "../node_modules/three/build/three.module.js" } }</script>
+<style>
+  body { margin: 0; padding: 20px; font: 14px -apple-system, system-ui, sans-serif; background: #fff7fa; color: #4a2f3d; }
+  h1 { font-size: 20px; margin: 0 0 14px; }
+  label { display: block; font-weight: 600; margin: 14px 0 6px; }
+  textarea, input { width: 100%; box-sizing: border-box; padding: 10px; border: 1px solid #e8c7d6; border-radius: 10px; font: inherit; background: #fff; }
+  textarea { height: 64px; resize: none; }
+  button { margin-top: 10px; padding: 10px 16px; border: 0; border-radius: 10px; font: 600 14px inherit; background: #ff8fb8; color: #fff; cursor: pointer; }
+  button:disabled { opacity: .5; cursor: default; }
+  button.secondary { background: #f3d6e2; color: #4a2f3d; }
+  .row { display: flex; gap: 8px; }
+  canvas { width: 100%; height: 240px; display: block; background: #fff; border-radius: 14px; margin-top: 14px; }
+  #status { margin-top: 10px; min-height: 18px; color: #a0476b; }
+  #keybox { display: none; }
+</style>
+</head>
+<body>
+<h1>lil gift 🎁</h1>
+
+<div id="keybox">
+  <label>Anthropic API key (stored encrypted on this Mac)</label>
+  <div class="row"><input id="key" type="password" placeholder="sk-ant-..."><button id="savekey" class="secondary">Save</button></div>
+</div>
+
+<label>What should they see?</label>
+<textarea id="prompt" placeholder="a tiny glowing pink heart with a gold crown"></textarea>
+<button id="gen">Generate</button>
+
+<canvas id="c"></canvas>
+
+<label>Message</label>
+<input id="message" maxlength="140" placeholder="thinking of you">
+<button id="send" disabled>Send gift</button>
+<div id="status"></div>
+
+<script type="module">
+  import { createGiftView } from './giftView.js';
+  const $ = (id) => document.getElementById(id);
+  const view = createGiftView($('c'));
+  let gift = null;
+  const say = (t) => ($('status').textContent = t);
+
+  async function checkKey() { $('keybox').style.display = (await window.lilGift.hasKey()) ? 'none' : 'block'; }
+  checkKey();
+
+  $('savekey').onclick = async () => {
+    try { await window.lilGift.saveKey($('key').value); $('key').value = ''; await checkKey(); say('Key saved'); }
+    catch (e) { say(e.message); }
+  };
+
+  $('gen').onclick = async () => {
+    if (!$('prompt').value.trim()) return;
+    $('gen').disabled = true; say('Making your gift...');
+    try {
+      gift = await window.lilGift.generate($('prompt').value);
+      view.setGift(gift); $('send').disabled = false; say('');
+    } catch (e) { say(e.message.replace(/^Error invoking remote method '[^']+': (Error: )?/, '')); }
+    $('gen').disabled = false;
+  };
+
+  $('send').onclick = async () => {
+    await window.lilGift.send({ ...gift, message: $('message').value });
+    say('Sent! 💌');
+  };
+</script>
+</body>
+</html>

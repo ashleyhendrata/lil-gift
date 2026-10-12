@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'unsafe-inline'">
+<script type="importmap">{ "imports": { "three": "../node_modules/three/build/three.module.js" } }</script>
+<style>
+  html, body { margin: 0; background: transparent; overflow: hidden; -webkit-app-region: no-drag; }
+  canvas { width: 320px; height: 320px; display: block; }
+  #msg { margin: 0 auto; max-width: 280px; padding: 8px 14px; border-radius: 16px; text-align: center;
+    font: 600 14px -apple-system, system-ui, sans-serif; color: #5a3b4a; background: rgba(255,255,255,.88);
+    box-shadow: 0 4px 14px rgba(0,0,0,.15); }
+  #msg:empty { display: none; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="msg"></div>
+<script type="module">
+  import { createGiftView } from './giftView.js';
+  const view = createGiftView(document.getElementById('c'));
+  window.lilGift.onGift((g) => {
+    view.setGift(g);
+    document.getElementById('msg').textContent = g.message;
+  });
+</script>
+</body>
+</html>

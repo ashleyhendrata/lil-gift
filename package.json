@@ -1,0 +1,17 @@
+{
+  "name": "lil-gift",
+  "version": "0.1.0",
+  "description": "Send a floating 3D gift to a friend's desktop",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.133.0",
+    "three": "^0.186.1"
+  },
+  "devDependencies": {
+    "electron": "^44.7.0"
+  }
+}
