@@ -27,6 +27,10 @@
   <div class="row"><input id="key" type="password" placeholder="sk-ant-..."><button id="savekey" class="secondary">Save</button></div>
 </div>
 
+<label>Room code (share it with your person)</label>
+<div class="row"><input id="room" placeholder="paste a code or make a new one"><button id="join" class="secondary">Join</button><button id="newroom" class="secondary">New</button></div>
+<div id="roomstatus" style="margin-top:6px;color:#a0476b"></div>
+
 <label>What should they see?</label>
 <textarea id="prompt" placeholder="a tiny glowing pink heart with a gold crown"></textarea>
 <button id="gen">Generate</button>
@@ -44,6 +48,14 @@
   const view = createGiftView($('c'));
   let gift = null;
   const say = (t) => ($('status').textContent = t);
+
+  window.lilGift.getRoom().then((r) => { $('room').value = r || ''; });
+  window.lilGift.onSyncStatus((t) => ($('roomstatus').textContent = t));
+  $('newroom').onclick = async () => { $('room').value = await window.lilGift.newRoom(); };
+  $('join').onclick = async () => {
+    try { await window.lilGift.setRoom($('room').value); }
+    catch (e) { $('roomstatus').textContent = e.message.replace(/^Error invoking remote method '[^']+': (Error: )?/, ''); }
+  };
 
   async function checkKey() { $('keybox').style.display = (await window.lilGift.hasKey()) ? 'none' : 'block'; }
   checkKey();
